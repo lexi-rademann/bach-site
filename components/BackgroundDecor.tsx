@@ -20,14 +20,21 @@ export function BackgroundDecor() {
     // Row 6 - bottom
     { src: "/images/martini.png", top: "90%", left: "25%", size: 130, rotate: 8, opacity: 0.18 },
     { src: "/images/wineglasses.png", top: "80%", left: "88%", size: 130, rotate: 5, opacity: 0.55 },
-
   ];
-
+  
   return (
     <>
+      <style>{`
+        @media (max-width: 640px) {
+          .background-decor {
+            display: none !important;
+          }
+        }
+      `}</style>
       {images.map((img, i) => (
         <img
           key={i}
+          className="background-decor"
           src={img.src}
           alt=""
           aria-hidden="true"
