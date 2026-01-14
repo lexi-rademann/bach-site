@@ -321,3 +321,18 @@ a{
     width: 100%;
   }
 }
+/* Mobile responsive hero text */
+@media (max-width: 640px) {
+  .heroWelcome {
+    font-size: 24px;
+  }
+  
+  .heroCamp {
+    font-size: 32px;
+    letter-spacing: .12em;
+  }
+  
+  .hero {
+    height: 300px;
+  }
+}
