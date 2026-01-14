@@ -11,7 +11,17 @@ type GroceryItem = {
   claimed_by: string | null;
   claimed_at: string | null;
   created_at: string;
+  category: string | null;
 };
+
+const CATEGORIES = [
+  "alcohol",
+  "pizza night",
+  "taco night (add-ons)",
+  "breakfast",
+  "snacks",
+  "house stuff",
+] as const;
 
 export function GroceriesClient({
   initialMembers,
@@ -29,6 +39,7 @@ export function GroceriesClient({
   const [newLabel, setNewLabel] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newNotes, setNewNotes] = useState("");
+  const [newCategory, setNewCategory] = useState<string>("snacks");
   const [adding, setAdding] = useState(false);
 
   // Edit state
@@ -37,12 +48,19 @@ export function GroceriesClient({
   const [editQty, setEditQty] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [editClaimedBy, setEditClaimedBy] = useState("");
+  const [editCategory, setEditCategory] = useState("");
 
   const filteredItems = items.filter((item) => {
     if (filter === "unclaimed") return !item.claimed_by;
     if (filter === "claimed") return !!item.claimed_by;
     return true;
   });
+
+  // Group items by category
+  const itemsByCategory = CATEGORIES.map((category) => ({
+    category,
+    items: filteredItems.filter((item) => item.category === category),
+  })).filter((group) => group.items.length > 0);
 
   async function refreshData() {
     const res = await fetch("/api/groceries");
@@ -65,6 +83,7 @@ export function GroceriesClient({
         label: newLabel.trim(),
         qty: newQty.trim() || null,
         notes: newNotes.trim() || null,
+        category: newCategory,
       }),
     });
 
@@ -77,6 +96,7 @@ export function GroceriesClient({
     setNewLabel("");
     setNewQty("");
     setNewNotes("");
+    setNewCategory("snacks");
     await refreshData();
   }
 
@@ -120,6 +140,7 @@ export function GroceriesClient({
     setEditQty(item.qty ?? "");
     setEditNotes(item.notes ?? "");
     setEditClaimedBy(item.claimed_by ?? "");
+    setEditCategory(item.category ?? "snacks");
   }
 
   function cancelEdit() {
@@ -128,6 +149,7 @@ export function GroceriesClient({
     setEditQty("");
     setEditNotes("");
     setEditClaimedBy("");
+    setEditCategory("");
   }
 
   async function saveEdit(id: string) {
@@ -145,6 +167,7 @@ export function GroceriesClient({
         notes: editNotes.trim() || null,
         claimed_by: editClaimedBy || null,
         claimed_at: editClaimedBy ? new Date().toISOString() : null,
+        category: editCategory,
       }),
     });
 
@@ -239,37 +262,50 @@ export function GroceriesClient({
         }
         .add-row {
           display: grid;
-          grid-template-columns: 2fr 1fr 2fr auto;
+          grid-template-columns: 2fr 1fr 2fr 1.5fr auto;
           gap: 10px;
           margin-bottom: 20px;
           align-items: center;
         }
-        .add-row input {
+        .add-row input,
+        .add-row select {
           padding: 8px;
           border: 1px solid #ddd;
           border-radius: 8px;
           font-size: 13px;
         }
-@media (max-width: 880px) {
-  .grocery-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .grocery-table {
-    font-size: 12px;
-    min-width: 600px; /* Force horizontal scroll instead of squishing */
-  }
-  .grocery-table th,
-  .grocery-table td {
-    padding: 6px 8px;
-  }
-  .add-row {
-    grid-template-columns: 1fr;
-  }
-  .truncate {
-    max-width: 120px;
-  }
-}
+        .category-section {
+          margin-bottom: 24px;
+        }
+        .category-header {
+          font-size: 18px;
+          font-weight: 800;
+          text-transform: capitalize;
+          margin-bottom: 10px;
+          padding: 8px 12px;
+          background: rgba(64,77,64,0.08);
+          border-radius: 8px;
+        }
+        @media (max-width: 880px) {
+          .grocery-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .grocery-table {
+            font-size: 12px;
+            min-width: 600px;
+          }
+          .grocery-table th,
+          .grocery-table td {
+            padding: 6px 8px;
+          }
+          .add-row {
+            grid-template-columns: 1fr;
+          }
+          .truncate {
+            max-width: 120px;
+          }
+        }
       `}</style>
       <main style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Groceries</h1>
@@ -293,6 +329,13 @@ export function GroceriesClient({
           <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Item" />
           <input value={newQty} onChange={(e) => setNewQty(e.target.value)} placeholder="Qty" />
           <input value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Notes (optional)" />
+          <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
           <button className="btn-sm" onClick={addItem} disabled={adding}>
             {adding ? "Adding..." : "Add"}
           </button>
@@ -310,139 +353,151 @@ export function GroceriesClient({
           </button>
         </div>
 
-<div className="grocery-table-wrapper">
-  <table className="grocery-table">
-    <thead>
-            <tr>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Notes</th>
-              <th>Claimed by</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredItems.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center", padding: 20, opacity: 0.6 }}>
-                  No items
-                </td>
-              </tr>
-            ) : (
-              filteredItems.map((item) => {
-                const isEditing = editingId === item.id;
+        {itemsByCategory.length === 0 ? (
+          <div style={{ padding: 20, textAlign: "center", opacity: 0.6 }}>No items</div>
+        ) : (
+          itemsByCategory.map((group) => (
+            <div key={group.category} className="category-section">
+              <div className="category-header">{group.category}</div>
+              <div className="grocery-table-wrapper">
+                <table className="grocery-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Qty</th>
+                      <th>Notes</th>
+                      <th>Claimed by</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.items.map((item) => {
+                      const isEditing = editingId === item.id;
 
-                return (
-                  <tr key={item.id}>
-                    <td>
-                      {isEditing ? (
-                        <input
-                          value={editLabel}
-                          onChange={(e) => setEditLabel(e.target.value)}
-                          style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
-                        />
-                      ) : (
-                        <span style={{ fontWeight: 600 }}>{item.label}</span>
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <input
-                          value={editQty}
-                          onChange={(e) => setEditQty(e.target.value)}
-                          style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
-                        />
-                      ) : (
-                        item.qty || "—"
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <input
-                          value={editNotes}
-                          onChange={(e) => setEditNotes(e.target.value)}
-                          style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
-                        />
-                      ) : (
-                        <span className="truncate" title={item.notes ?? ""}>
-                          {item.notes || "—"}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      {isEditing ? (
-                        <select
-                          value={editClaimedBy}
-                          onChange={(e) => setEditClaimedBy(e.target.value)}
-                          style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
-                        >
-                          <option value="">Unclaimed</option>
-                          {members.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.name}
-                            </option>
-                          ))}
-                        </select>
-                      ) : item.claimed_by ? (
-                        <span style={{ fontWeight: 600 }}>{getMemberName(item.claimed_by)}</span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        {isEditing ? (
-                          <>
-                            <button className="btn-sm" onClick={() => saveEdit(item.id)}>
-                              Save
-                            </button>
-                            <button className="btn-sm" onClick={cancelEdit}>
-                              Cancel
-                            </button>
-                            <button className="btn-sm btn-danger" onClick={() => deleteItem(item.id)}>
-                              Delete
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button className="btn-sm" onClick={() => startEdit(item)}>
-                              Edit
-                            </button>
-                            {!item.claimed_by ? (
+                      return (
+                        <tr key={item.id}>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                value={editLabel}
+                                onChange={(e) => setEditLabel(e.target.value)}
+                                style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                              />
+                            ) : (
+                              <span style={{ fontWeight: 600 }}>{item.label}</span>
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                value={editQty}
+                                onChange={(e) => setEditQty(e.target.value)}
+                                style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                              />
+                            ) : (
+                              item.qty || "—"
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                value={editNotes}
+                                onChange={(e) => setEditNotes(e.target.value)}
+                                style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                              />
+                            ) : (
+                              <span className="truncate" title={item.notes ?? ""}>
+                                {item.notes || "—"}
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
                               <select
-                                onChange={(e) => e.target.value && claimItem(item.id, e.target.value)}
-                                style={{
-                                  padding: "4px 8px",
-                                  fontSize: 12,
-                                  borderRadius: 6,
-                                  border: "1px solid #ddd",
-                                }}
-                                defaultValue=""
+                                value={editClaimedBy}
+                                onChange={(e) => setEditClaimedBy(e.target.value)}
+                                style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
                               >
-                                <option value="">Claim</option>
+                                <option value="">Unclaimed</option>
                                 {members.map((m) => (
                                   <option key={m.id} value={m.id}>
                                     {m.name}
                                   </option>
                                 ))}
                               </select>
+                            ) : item.claimed_by ? (
+                              <span style={{ fontWeight: 600 }}>{getMemberName(item.claimed_by)}</span>
                             ) : (
-                              <button className="btn-sm" onClick={() => unclaimItem(item.id)}>
-                                Unclaim
-                              </button>
+                              "—"
                             )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-</div>
-</main>
+                          </td>
+                          <td>
+                            <div style={{ display: "flex", gap: 6 }}>
+                              {isEditing ? (
+                                <>
+                                  <select
+                                    value={editCategory}
+                                    onChange={(e) => setEditCategory(e.target.value)}
+                                    style={{ padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #ddd" }}
+                                  >
+                                    {CATEGORIES.map((cat) => (
+                                      <option key={cat} value={cat}>
+                                        {cat}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <button className="btn-sm" onClick={() => saveEdit(item.id)}>
+                                    Save
+                                  </button>
+                                  <button className="btn-sm" onClick={cancelEdit}>
+                                    Cancel
+                                  </button>
+                                  <button className="btn-sm btn-danger" onClick={() => deleteItem(item.id)}>
+                                    Delete
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button className="btn-sm" onClick={() => startEdit(item)}>
+                                    Edit
+                                  </button>
+                                  {!item.claimed_by ? (
+                                    <select
+                                      onChange={(e) => e.target.value && claimItem(item.id, e.target.value)}
+                                      style={{
+                                        padding: "4px 8px",
+                                        fontSize: 12,
+                                        borderRadius: 6,
+                                        border: "1px solid #ddd",
+                                      }}
+                                      defaultValue=""
+                                    >
+                                      <option value="">Claim</option>
+                                      {members.map((m) => (
+                                        <option key={m.id} value={m.id}>
+                                          {m.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <button className="btn-sm" onClick={() => unclaimItem(item.id)}>
+                                      Unclaim
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))
+        )}
+      </main>
     </>
   );
 }
