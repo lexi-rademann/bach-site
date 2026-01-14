@@ -67,8 +67,8 @@ export default async function HomePage() {
   const expensesCount = expenses?.length ?? 0;
 
   return (
-<main style={{ padding: "24px 16px", maxWidth: 1000, margin: "0 auto" }}>
-  <section className="hero">
+    <>
+      <section className="hero">
         <div className="heroOverlay" />
         <div className="heroContent">
           <div className="heroWelcome">Welcome to</div>
@@ -76,14 +76,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section
-        style={{
-          marginTop: 18,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: 14,
-        }}
-      >
+      <section className="cards-grid">
         <Card
           href="/itinerary"
           icon="🗺️"
@@ -102,17 +95,10 @@ export default async function HomePage() {
           href="/expenses"
           icon="🧾"
           title="Expenses"
-          desc="Add expenses + custom splits"
+          desc="Track expenses + settle up"
           meta={`${expensesCount} expenses • ${centsToDollars(expensesTotalCents)} total`}
         />
-        <Card
-          href="/balances"
-          icon="🤝"
-          title="Balances"
-          desc="Who owes who + settle up"
-          meta="View settle-up"
-        />
       </section>
-    </main>
+    </>
   );
 }

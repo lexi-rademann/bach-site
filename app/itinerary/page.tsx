@@ -13,18 +13,34 @@ type ItineraryItem = {
 };
 
 function formatDay(day: string) {
-  // day is YYYY-MM-DD
   const [y, m, d] = day.split("-").map(Number);
   const dt = new Date(y, (m ?? 1) - 1, d ?? 1);
   return dt.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
 }
 
 function formatTime(t: string) {
-  // t is HH:MM:SS
   const [hh, mm] = t.split(":").map(Number);
   const dt = new Date();
   dt.setHours(hh ?? 0, mm ?? 0, 0, 0);
   return dt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+function getLinkLabel(url: string): string {
+  try {
+    const hostname = new URL(url).hostname.replace("www.", "");
+    if (hostname.includes("airbnb")) return "Airbnb";
+    if (hostname.includes("google.com/maps") || hostname.includes("maps.google") || hostname.includes("goo.gl")) return "Maps";
+    if (hostname.includes("yelp")) return "Yelp";
+    if (hostname.includes("opentable")) return "OpenTable";
+    if (hostname.includes("resy")) return "Resy";
+    if (hostname.includes("instagram")) return "Instagram";
+    if (hostname.includes("facebook")) return "Facebook";
+    // Fallback: capitalize first part of domain
+    const name = hostname.split(".")[0];
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  } catch {
+    return "Link";
+  }
 }
 
 export default function ItineraryPage() {
@@ -63,8 +79,8 @@ export default function ItineraryPage() {
   }, [items]);
 
   return (
-    <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Itinerary</h1>
+    <>
+      <h1 className="itinerary-title">Itinerary</h1>
 
       {loading ? (
         <div>Loading…</div>
@@ -75,31 +91,30 @@ export default function ItineraryPage() {
           No itinerary items yet. Add rows in Supabase → <b>itinerary_items</b>.
         </div>
       ) : (
-        <div style={{ display: "grid", gap: 14 }}>
+        <div className="itinerary-days">
           {grouped.map(([day, dayItems]) => (
-            <section key={day} style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "rgba(251,246,234,1)" }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>
+            <section key={day} className="day-card">
+              <h2 className="day-title">
                 {day === "No date" ? "No date" : formatDay(day)}
               </h2>
 
-              <div style={{ display: "grid", gap: 10 }}>
-                {dayItems.map((i) => (
-                  <div key={i.id} style={{ border: "1px solid #f0f0f0", borderRadius: 12, padding: 12, background: "rgba(255,255,255,0.96)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                      <div style={{ fontWeight: 800 }}>
-                        {i.start_time ? `${formatTime(i.start_time)} • ` : ""}
-                        {i.title}
-                      </div>
-
-                      {i.link ? (
-                        <a href={i.link} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-                          Link ↗
+              <div className="day-items">
+                {dayItems.map((item) => (
+                  <div key={item.id} className="itinerary-item">
+                    <div className="item-header">
+                      {item.start_time && (
+                        <span className="item-time">{formatTime(item.start_time)}</span>
+                      )}
+                      <span className="item-title">{item.title}</span>
+                      {item.link && (
+                        <a href={item.link} target="_blank" rel="noreferrer" className="item-link-badge">
+                          {getLinkLabel(item.link)} ↗
                         </a>
-                      ) : null}
+                      )}
                     </div>
 
-                    {i.location ? <div style={{ marginTop: 6, opacity: 0.85 }}>{i.location}</div> : null}
-                    {i.notes ? <div style={{ marginTop: 6, opacity: 0.85 }}>{i.notes}</div> : null}
+                    {item.location && <div className="item-detail">{item.location}</div>}
+                    {item.notes && <div className="item-detail">{item.notes}</div>}
                   </div>
                 ))}
               </div>
@@ -107,13 +122,6 @@ export default function ItineraryPage() {
           ))}
         </div>
       )}
-
-      <button
-        onClick={load}
-        style={{ marginTop: 14, padding: "10px 12px", borderRadius: 10, border: "1px solid #ddd", cursor: "pointer" }}
-      >
-        Refresh
-      </button>
-    </main>
+    </>
   );
 }
