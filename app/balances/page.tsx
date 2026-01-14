@@ -81,6 +81,22 @@ export default function BalancesPage() {
   const nameById = useMemo(() => new Map(rows.map((r) => [r.id, r.name])), [rows]);
 
   return (
+  <>
+    <style>{`
+      main {
+        background: transparent !important;
+      }
+      @media (max-width: 640px) {
+        .balance-summary-grid {
+          grid-template-columns: 1fr 80px 80px 80px !important;
+          font-size: 13px;
+        }
+        .balance-summary-grid > div {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    `}</style>
     <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Balances</h1>
 
@@ -93,8 +109,8 @@ export default function BalancesPage() {
           <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Summary</h2>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 140px 140px", gap: 8, fontWeight: 700 }}>
-              <div>Person</div>
+<div className="balance-summary-grid" style={{ display: "grid", gridTemplateColumns: "1fr 140px 140px 140px", gap: 8, fontWeight: 700 }}>
+  <div>Person</div>
               <div style={{ textAlign: "right" }}>Paid</div>
               <div style={{ textAlign: "right" }}>Owes</div>
               <div style={{ textAlign: "right" }}>Net</div>
@@ -104,6 +120,7 @@ export default function BalancesPage() {
               {rows.map((r) => (
                 <div
                   key={r.id}
+                  className="balance-summary-grid"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "1fr 140px 140px 140px",
@@ -154,5 +171,6 @@ export default function BalancesPage() {
         </>
       )}
     </main>
+  </>
   );
 }
