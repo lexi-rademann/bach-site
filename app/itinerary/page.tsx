@@ -77,7 +77,7 @@ export default function ItineraryPage() {
       ) : (
         <div style={{ display: "grid", gap: 14 }}>
           {grouped.map(([day, dayItems]) => (
-            <section key={day} style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "rgba(251,246,234,.98)" }}>
+            <section key={day} style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "rgba(251,246,234,1)" }}>
               <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 10 }}>
                 {day === "No date" ? "No date" : formatDay(day)}
               </h2>
