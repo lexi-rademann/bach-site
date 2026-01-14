@@ -131,7 +131,7 @@ export default function BringPage() {
       `}</style>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>What to Bring</h1>
 
-      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 18 }}>
+      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 18, background: "#FBF6EA" }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Add an item</h2>
 
         <div className="bring-form-grid">
@@ -216,7 +216,7 @@ function BringSection({
   onDelete: (id: string) => void;
 }) {
   return (
-    <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
+    <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
       <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>{title}</h2>
 
       {items.length === 0 ? (
@@ -224,7 +224,7 @@ function BringSection({
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {items.map((i) => (
-            <div key={i.id} style={{ border: "1px solid #f0f0f0", borderRadius: 12, padding: 12 }}>
+            <div key={i.id} style={{ border: "1px solid #f0f0f0", borderRadius: 12, padding: 12, background: "#FFFFFF" }}>
               <div className="bring-item-grid">
                 <div style={{ minWidth: 0 }}>
                   <EditableText value={i.label} placeholder="Item" onSave={(v) => onEdit(i.id, { label: v })} />
