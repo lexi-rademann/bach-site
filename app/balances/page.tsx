@@ -135,7 +135,7 @@ export default function BalancesPage() {
             ) : (
               <div style={{ display: "grid", gap: 8 }}>
                 {payments.map((p, idx) => (
-                  <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10, bacground: "#FFFFFF" }}>
+                  <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10, background: "#FFFFFF" }}>
                     <b>{nameById.get(p.from) ?? "Someone"}</b> pays{" "}
                     <b>{nameById.get(p.to) ?? "Someone"}</b>{" "}
                     <b>{centsToDollars(p.amount_cents)}</b>
