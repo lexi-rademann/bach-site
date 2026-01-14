@@ -20,7 +20,7 @@ export function BackgroundDecor() {
     // Row 5
     { src: "/images/bonfire.png", top: "72%", left: "3%", size: 130, rotate: -10, opacity: 0.18 },
     { src: "/images/wineglasses.png", top: "75%", left: "42%", size: 130, rotate: 5, opacity: 0.55 },
-    { src: "/images/trees.png", top: "68%", left: "82%", size: 140, rotate: 12, opacity: 0.45 },
+    { src: "/images/trees.png", top: "63%", left: "82%", size: 140, rotate: 12, opacity: 0.45 },
     // Row 6 - bottom
     { src: "/images/martini.png", top: "90%", left: "25%", size: 130, rotate: 8, opacity: 0.18 },
     { src: "/images/ring.png", top: "88%", left: "68%", size: 120, rotate: -5, opacity: 0.25 },
