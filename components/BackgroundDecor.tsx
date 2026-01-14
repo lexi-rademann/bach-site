@@ -4,9 +4,9 @@ export function BackgroundDecor() {
   const images = [
     // 15 images total - each appears 3 times, well spaced
     // Row 1 - top
-    { src: "/images/martini.png", top: "5%", left: "3%", size: 130, rotate: -12, opacity: 0.18 },
+    { src: "/images/martini.png", top: "10%", left: "3%", size: 130, rotate: -12, opacity: 0.18 },
     { src: "/images/trees.png", top: "4%", left: "50%", size: 140, rotate: 8, opacity: 0.45 },
-    { src: "/images/wineglasses.png", top: "5%", left: "88%", size: 130, rotate: 10, opacity: 0.55 },
+    { src: "/images/wineglasses.png", top: "10%", left: "88%", size: 130, rotate: 10, opacity: 0.55 },
     // Row 2
     { src: "/images/ring.png", top: "20%", left: "15%", size: 120, rotate: -5, opacity: 0.25 },
     { src: "/images/bonfire.png", top: "22%", left: "75%", size: 130, rotate: 12, opacity: 0.18 },
