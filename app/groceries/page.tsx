@@ -31,7 +31,22 @@ export default async function GroceriesPage() {
   const unclaimed = groceryItems.filter((i) => !i.claimed_by);
   const claimed = groceryItems.filter((i) => !!i.claimed_by);
 
-  return (
+return (
+  <>
+    <style>{`
+      @media (max-width: 880px) {
+        .grocery-row-grid {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 12px !important;
+        }
+        
+        .grocery-row-grid label,
+        .grocery-row-grid button {
+          width: 100% !important;
+        }
+      }
+    `}</style>
     <main style={{ padding: 24, maxWidth: 1000, margin: "0 auto" }}>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Groceries</h1>
 
@@ -110,6 +125,7 @@ export default async function GroceriesPage() {
         </div>
       </section>
     </main>
+  </>
   );
 }
 
@@ -137,8 +153,8 @@ function GroceryRow({
 
   return (
     <div style={{ border: "1px solid #f0f0f0", borderRadius: 10, padding: 12 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr 1.5fr auto auto", gap: 12, alignItems: "end" }}>
-        <label style={labelStyle}>
+<div className="grocery-row-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr 1.5fr auto auto", gap: 12, alignItems: "end" }}>
+  <label style={labelStyle}>
           <span style={{ fontWeight: 600 }}>Item</span>
           <input
             value={item.label}
