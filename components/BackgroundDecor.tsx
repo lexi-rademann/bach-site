@@ -38,7 +38,6 @@ export function BackgroundDecor() {
             position: "fixed",
             top: img.top,
             left: img.left,
-            right: img.right,
             width: img.size,
             height: "auto",
             opacity: img.opacity,
