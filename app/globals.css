@@ -241,7 +241,7 @@ a{
 }
 
 .rowCard{
-  background: rgba(255,255,255,.40);
+  background: rgb(255,255,255);
   border: 1px solid rgba(64,77,64,.12);
   border-radius: 14px;
   padding: 12px;
