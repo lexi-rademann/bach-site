@@ -9,7 +9,7 @@ export function BackgroundDecor() {
     { src: "/images/wineglasses.png", top: "10%", left: "88%", size: 130, rotate: 10, opacity: 0.55 },
     // Row 2
     { src: "/images/ring.png", top: "20%", left: "15%", size: 120, rotate: -5, opacity: 0.25 },
-    { src: "/images/bonfire.png", top: "22%", left: "75%", size: 130, rotate: 12, opacity: 0.18 },
+    { src: "/images/bonfire.png", top: "22%", left: "70%", size: 130, rotate: 12, opacity: 0.18 },
     // Row 3
     { src: "/images/wineglasses.png", top: "38%", left: "2%", size: 130, rotate: 10, opacity: 0.55 },
     { src: "/images/bonfire.png", top: "40%", left: "40%", size: 130, rotate: 15, opacity: 0.18 },
