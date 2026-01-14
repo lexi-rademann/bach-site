@@ -250,21 +250,26 @@ export function GroceriesClient({
           border-radius: 8px;
           font-size: 13px;
         }
-        @media (max-width: 880px) {
-          .grocery-table {
-            font-size: 12px;
-          }
-          .grocery-table th,
-          .grocery-table td {
-            padding: 6px 8px;
-          }
-          .add-row {
-            grid-template-columns: 1fr;
-          }
-          .truncate {
-            max-width: 120px;
-          }
-        }
+@media (max-width: 880px) {
+  .grocery-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .grocery-table {
+    font-size: 12px;
+    min-width: 600px; /* Force horizontal scroll instead of squishing */
+  }
+  .grocery-table th,
+  .grocery-table td {
+    padding: 6px 8px;
+  }
+  .add-row {
+    grid-template-columns: 1fr;
+  }
+  .truncate {
+    max-width: 120px;
+  }
+}
       `}</style>
       <main style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
         <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Groceries</h1>
@@ -305,8 +310,9 @@ export function GroceriesClient({
           </button>
         </div>
 
-        <table className="grocery-table">
-          <thead>
+<div className="grocery-table-wrapper">
+  <table className="grocery-table">
+    <thead>
             <tr>
               <th>Item</th>
               <th>Qty</th>
@@ -435,7 +441,8 @@ export function GroceriesClient({
             )}
           </tbody>
         </table>
-      </main>
+</div>
+</main>
     </>
   );
 }
