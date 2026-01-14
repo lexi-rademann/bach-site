@@ -9,27 +9,23 @@ export default function UnlockPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const res = await fetch("/api/unlock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ passcode }),
-    });
-
-    setLoading(false);
-
-    if (!res.ok) {
-      setError("Wrong passcode. Try again.");
-      return;
-    }
-
-router.push("/");
-router.refresh();
+async function onSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  const res = await fetch("/api/unlock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ passcode }),
+  });
+  setLoading(false);
+  if (!res.ok) {
+    setError("Wrong passcode. Try again.");
+    return;
   }
+  // Use full page reload to ensure cookie is properly set
+  window.location.href = "/";
+}
 
   return (
     <main style={{ maxWidth: 420, margin: "64px auto", padding: 16 }}>
