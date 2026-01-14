@@ -15,12 +15,12 @@ export function BackgroundDecor() {
     { src: "/images/bonfire.png", top: "30%", left: "30%", size: 130, rotate: 15, opacity: 0.18 },
     { src: "/images/ring.png", top: "38%", left: "85%", size: 120, rotate: -8, opacity: 0.25 },
     // Row 4
-    { src: "/images/trees.png", top: "50%", left: "10%", size: 130, rotate: -3, opacity: 0.50 },
+    { src: "/images/trees.png", top: "50%", left: "15%", size: 130, rotate: -3, opacity: 0.50 },
     { src: "/images/martini.png", top: "48%", left: "50%", size: 130, rotate: 8, opacity: 0.18 },
     // Row 5
     { src: "/images/bonfire.png", top: "76%", left: "3%", size: 130, rotate: -10, opacity: 0.18 },
     { src: "/images/wineglasses.png", top: "75%", left: "42%", size: 130, rotate: 5, opacity: 0.55 },
-    { src: "/images/trees.png", top: "53%", left: "82%", size: 130, rotate: 12, opacity: 0.50 },
+    { src: "/images/trees.png", top: "53%", left: "78%", size: 130, rotate: 12, opacity: 0.50 },
     // Row 6 - bottom
     { src: "/images/martini.png", top: "90%", left: "25%", size: 130, rotate: 8, opacity: 0.18 },
     { src: "/images/ring.png", top: "88%", left: "68%", size: 120, rotate: -5, opacity: 0.25 },
