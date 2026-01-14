@@ -22,11 +22,11 @@ const body = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://camp-courtney.vercel.app"),
-  title: "Camp Courtney",
-  description: "Camp Courtney weekend HQ",
+  title: "Court's Bach - Jan 23-25 - Lake Delton",
+  description: "Court's Bach - Jan 23-25 - Lake Delton",
   openGraph: {
-    title: "Camp Courtney",
-    description: "Camp Courtney weekend HQ",
+    title: "Court's Bach - Jan 23-25 - Lake Delton",
+    description: "Court's Bach - Jan 23-25 - Lake Delton",
     images: [
       {
         url: "/images/airbnb-20image-20painted.jpeg",
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Camp Courtney",
-    description: "Camp Courtney weekend HQ",
+    title: "Court's Bach - Jan 23-25 - Lake Delton",
+    description: "Court's Bach - Jan 23-25 - Lake Delton",
     images: ["/images/airbnb-20image-20painted.jpeg"],
   },
 };
