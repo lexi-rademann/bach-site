@@ -27,7 +27,8 @@ export default function UnlockPage() {
       return;
     }
 
-    router.replace("/");
+router.push("/");
+router.refresh();
   }
 
   return (
