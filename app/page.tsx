@@ -51,15 +51,6 @@ export default async function HomePage() {
     .select("id", { count: "exact", head: true })
     .is("claimed_by", null);
 
-  const { count: bringTotal } = await supabaseAdmin
-    .from("bring_items")
-    .select("id", { count: "exact", head: true });
-
-  const { count: bringUnassigned } = await supabaseAdmin
-    .from("bring_items")
-    .select("id", { count: "exact", head: true })
-    .is("assigned_to", null);
-
   const { count: itineraryTotal } = await supabaseAdmin
     .from("itinerary_items")
     .select("id", { count: "exact", head: true });
@@ -106,13 +97,6 @@ export default async function HomePage() {
           title="Groceries"
           desc="Add + claim grocery items"
           meta={`${groceriesTotal ?? 0} items • ${groceriesUnclaimed ?? 0} unclaimed`}
-        />
-        <Card
-          href="/bring"
-          icon="🎒"
-          title="What to bring"
-          desc="Checklist + who’s bringing what"
-          meta={`${bringTotal ?? 0} items • ${bringUnassigned ?? 0} unassigned`}
         />
         <Card
           href="/expenses"
