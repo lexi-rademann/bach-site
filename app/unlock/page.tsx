@@ -47,6 +47,7 @@ async function onSubmit(e: React.FormEvent) {
             padding: 12,
             borderRadius: 10,
             border: "1px solid #ddd",
+            fontSize: 16,
           }}
         />
         <button
