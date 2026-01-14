@@ -63,7 +63,12 @@ a{
   text-transform: uppercase;
   font-weight: 600;
 }
-
+/* Prevent mobile zoom on input focus */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
 /* ===== Header/nav buttons ===== */
 .tapestry-pill{
   display: inline-flex;
