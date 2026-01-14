@@ -336,3 +336,24 @@ a{
     height: 300px;
   }
 }
+/* Add this to the existing mobile media query at the bottom */
+@media (max-width: 640px) {
+  .heroWelcome {
+    font-size: 24px;
+  }
+  
+  .heroCamp {
+    font-size: 32px;
+    letter-spacing: .12em;
+  }
+  
+  .hero {
+    height: 300px;
+    margin: 0 -16px; /* Pull hero to screen edges on mobile */
+    border-radius: 0; /* Remove rounded corners on mobile */
+  }
+  
+  main {
+    padding: 24px 16px !important; /* Reduce horizontal padding on mobile */
+  }
+}
