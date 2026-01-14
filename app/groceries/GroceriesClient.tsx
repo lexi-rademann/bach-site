@@ -15,7 +15,7 @@ type GroceryItem = {
 };
 
 const CATEGORIES = [
-  "alcohol + drinks",
+  "cocktails + mocktails",
   "pizza night",
   "taco night (add-ons)",
   "breakfast",
