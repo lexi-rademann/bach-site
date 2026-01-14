@@ -11,7 +11,8 @@ export default async function GroceriesPage() {
 
   const { data: items } = await supabaseAdmin
     .from("grocery_items")
-    .select("id, label, qty, notes, claimed_by, claimed_at, created_at")
+    .select("id, label, qty, notes, claimed_by, claimed_at, created_at, category")
+    .order("category", { ascending: true })
     .order("claimed_by", { ascending: true, nullsFirst: true })
     .order("created_at", { ascending: false });
 
