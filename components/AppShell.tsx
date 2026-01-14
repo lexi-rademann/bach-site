@@ -5,7 +5,6 @@ const nav = [
   { href: "/", label: "Home" },
   { href: "/itinerary", label: "Itinerary" },
   { href: "/groceries", label: "Groceries" },
-  { href: "/bring", label: "Bring" },
   { href: "/expenses", label: "Expenses" },
   { href: "/balances", label: "Balances" },
 ];
