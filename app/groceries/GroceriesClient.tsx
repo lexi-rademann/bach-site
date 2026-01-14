@@ -62,6 +62,10 @@ export function GroceriesClient({
     items: filteredItems.filter((item) => item.category === category),
   })).filter((group) => group.items.length > 0);
 
+console.log("All items:", items); // Add this
+console.log("Filtered items:", filteredItems); // Add this
+console.log("Items by category:", itemsByCategory);
+
   async function refreshData() {
     const res = await fetch("/api/groceries");
     const data = await res.json();
