@@ -76,8 +76,8 @@ export default async function HomePage() {
   const expensesCount = expenses?.length ?? 0;
 
   return (
-    <main style={{ padding: 24, maxWidth: 1000, margin: "0 auto" }}>
-      <section className="hero">
+<main style={{ padding: "24px 16px", maxWidth: 1000, margin: "0 auto" }}>
+  <section className="hero">
         <div className="heroOverlay" />
         <div className="heroContent">
           <div className="heroWelcome">Welcome to</div>
