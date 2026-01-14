@@ -11,7 +11,20 @@
   --taupe:#8F7B67;
   --paper:#FBF6EA;
 }
+* {
+  box-sizing: border-box;
+}
 
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+main {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
 /* Background on html so it spans full scroll height */
 html{
   min-height: 100%;
@@ -349,11 +362,14 @@ a{
   
   .hero {
     height: 300px;
-    margin: 0 -16px; /* Pull hero to screen edges on mobile */
-    border-radius: 0; /* Remove rounded corners on mobile */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    border-radius: 0;
   }
   
-  main {
-    padding: 24px 16px !important; /* Reduce horizontal padding on mobile */
+  body, main {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    overflow-x: hidden;
   }
 }
