@@ -81,96 +81,119 @@ export default function BalancesPage() {
   const nameById = useMemo(() => new Map(rows.map((r) => [r.id, r.name])), [rows]);
 
   return (
-  <>
-    <style>{`
-      main {
-        background: transparent !important;
-      }
-      @media (max-width: 640px) {
-        .balance-summary-grid {
-          grid-template-columns: 1fr 80px 80px 80px !important;
-          font-size: 13px;
+    <>
+      <style>{`
+        section {
+          background: #FBF6EA !important;
         }
-        .balance-summary-grid > div {
-          overflow: hidden;
-          text-overflow: ellipsis;
+        
+        .balance-row {
+          background: #FFFFFF !important;
         }
-      }
-    `}</style>
-    <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Balances</h1>
+        
+        @media (max-width: 640px) {
+          .balance-summary-grid {
+            display: block !important;
+          }
+          
+          .balance-summary-grid > div:first-child {
+            display: none; /* Hide header row on mobile */
+          }
+          
+          .balance-row {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            margin-bottom: 12px !important;
+            padding: 12px !important;
+          }
+          
+          .balance-row > div {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+          }
+          
+          .balance-row > div::before {
+            content: attr(data-label);
+            font-weight: 700;
+            margin-right: 8px;
+          }
+        }
+      `}</style>
+      <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Balances</h1>
 
-      {loading ? (
-        <div>Loading…</div>
-      ) : error ? (
-        <div style={{ color: "crimson" }}>{error}</div>
-      ) : (
-        <>
-          <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Summary</h2>
+        {loading ? (
+          <div>Loading…</div>
+        ) : error ? (
+          <div style={{ color: "crimson" }}>{error}</div>
+        ) : (
+          <>
+            <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Summary</h2>
 
-<div className="balance-summary-grid" style={{ display: "grid", gridTemplateColumns: "1fr 140px 140px 140px", gap: 8, fontWeight: 700 }}>
-  <div>Person</div>
-              <div style={{ textAlign: "right" }}>Paid</div>
-              <div style={{ textAlign: "right" }}>Owes</div>
-              <div style={{ textAlign: "right" }}>Net</div>
-            </div>
+              <div className="balance-summary-grid" style={{ display: "grid", gridTemplateColumns: "1fr 140px 140px 140px", gap: 8, fontWeight: 700 }}>
+                <div>Person</div>
+                <div style={{ textAlign: "right" }}>Paid</div>
+                <div style={{ textAlign: "right" }}>Owes</div>
+                <div style={{ textAlign: "right" }}>Net</div>
+              </div>
 
-            <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
-              {rows.map((r) => (
-                <div
-                  key={r.id}
-                  className="balance-summary-grid"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 140px 140px 140px",
-                    gap: 8,
-                    padding: "8px 10px",
-                    border: "1px solid #f0f0f0",
-                    borderRadius: 10,
-                    background: "#FFFFFF",
-                  }}
-                >
-                  <div style={{ fontWeight: 700 }}>{r.name}</div>
-                  <div style={{ textAlign: "right" }}>{centsToDollars(r.paid_cents)}</div>
-                  <div style={{ textAlign: "right" }}>{centsToDollars(r.owed_cents)}</div>
-                  <div style={{ textAlign: "right", fontWeight: 800 }}>
-                    <span style={{ color: r.net_cents < 0 ? "crimson" : r.net_cents > 0 ? "green" : "inherit" }}>
-                      {centsToDollars(r.net_cents)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section style={{ marginTop: 16, border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Suggested settle up</h2>
-
-            {payments.length === 0 ? (
-              <div>No payments needed (everyone is even).</div>
-            ) : (
-              <div style={{ display: "grid", gap: 8 }}>
-                {payments.map((p, idx) => (
-                  <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10, background: "#FFFFFF" }}>
-                    <b>{nameById.get(p.from) ?? "Someone"}</b> pays{" "}
-                    <b>{nameById.get(p.to) ?? "Someone"}</b>{" "}
-                    <b>{centsToDollars(p.amount_cents)}</b>
+              <div style={{ marginTop: 8, display: "grid", gap: 6 }}>
+                {rows.map((r) => (
+                  <div
+                    key={r.id}
+                    className="balance-row"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 140px 140px 140px",
+                      gap: 8,
+                      padding: "8px 10px",
+                      border: "1px solid #f0f0f0",
+                      borderRadius: 10,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700 }}>{r.name}</div>
+                    <div data-label="Paid:" style={{ textAlign: "right" }}>{centsToDollars(r.paid_cents)}</div>
+                    <div data-label="Owes:" style={{ textAlign: "right" }}>{centsToDollars(r.owed_cents)}</div>
+                    <div data-label="Net:" style={{ textAlign: "right", fontWeight: 800 }}>
+                      <span style={{ color: r.net_cents < 0 ? "crimson" : r.net_cents > 0 ? "green" : "inherit" }}>
+                        {centsToDollars(r.net_cents)}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
-            )}
-          </section>
+            </section>
 
-          <button
-            onClick={load}
-            style={{ marginTop: 14, padding: "10px 12px", borderRadius: 10, border: "1px solid #ddd", cursor: "pointer" }}
-          >
-            Refresh
-          </button>
-        </>
-      )}
-    </main>
-  </>
+            <section style={{ marginTop: 16, border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Suggested settle up</h2>
+
+              {payments.length === 0 ? (
+                <div>No payments needed (everyone is even).</div>
+              ) : (
+                <div style={{ display: "grid", gap: 8 }}>
+                  {payments.map((p, idx) => (
+                    <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10, background: "#FFFFFF" }}>
+                      <b>{nameById.get(p.from) ?? "Someone"}</b> pays{" "}
+                      <b>{nameById.get(p.to) ?? "Someone"}</b>{" "}
+                      <b>{centsToDollars(p.amount_cents)}</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <button
+              onClick={load}
+              style={{ marginTop: 14, padding: "10px 12px", borderRadius: 10, border: "1px solid #ddd", cursor: "pointer" }}
+            >
+              Refresh
+            </button>
+          </>
+        )}
+      </main>
+    </>
   );
 }
