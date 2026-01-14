@@ -1,215 +1,442 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { addGroceryItem, saveGroceryItem, deleteGroceryItem } from "./actions";
 
-export const dynamic = "force-dynamic";
-
+type Member = { id: string; name: string; sort_order: number };
 type GroceryItem = {
-  id: string | number; // ✅ supports UUID or numeric
+  id: string;
   label: string;
   qty: string | null;
   notes: string | null;
   claimed_by: string | null;
+  claimed_at: string | null;
+  created_at: string;
 };
 
-export default async function GroceriesPage() {
-  const { data: members, error: membersError } = await supabaseAdmin
-    .from("members")
-    .select("id, name, sort_order")
-    .order("sort_order", { ascending: true });
+export default function GroceriesPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [items, setItems] = useState<GroceryItem[]>([]);
+  const [filter, setFilter] = useState<"unclaimed" | "claimed" | "all">("unclaimed");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const memberList = (members ?? [])
-    .filter((m) => m.id && m.name)
-    .map((m) => ({ id: m.id as string, name: m.name as string }));
+  // Add form state
+  const [newLabel, setNewLabel] = useState("");
+  const [newQty, setNewQty] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+  const [adding, setAdding] = useState(false);
 
-  const { data: items, error: itemsError } = await supabaseAdmin
-    .from("grocery_items")
-    .select("id,label,qty,notes,claimed_by")
-    .order("id", { ascending: false });
+  // Edit state: track which row is being edited
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editQty, setEditQty] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editClaimedBy, setEditClaimedBy] = useState("");
 
-  const groceryItems = (items ?? []) as GroceryItem[];
+  async function loadData() {
+    setLoading(true);
+    setError(null);
 
-  const unclaimed = groceryItems.filter((i) => !i.claimed_by);
-  const claimed = groceryItems.filter((i) => !!i.claimed_by);
+    const { data: membersData, error: mErr } = await supabaseAdmin
+      .from("members")
+      .select("id, name, sort_order")
+      .order("sort_order", { ascending: true });
 
-return (
-  <>
-    <style>{`
-      @media (max-width: 880px) {
-        .grocery-row-grid {
-          display: grid !important;
-          grid-template-columns: 1fr !important;
-          gap: 12px !important;
-        }
-        
-        .grocery-row-grid label,
-        .grocery-row-grid button {
-          width: 100% !important;
-        }
-      }
-    `}</style>
-    <main style={{ padding: 24, maxWidth: 1000, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Groceries</h1>
+    if (mErr) {
+      setError(mErr.message);
+      setLoading(false);
+      return;
+    }
+    setMembers(membersData ?? []);
 
-      {(membersError || itemsError) && (
-        <div
-          style={{
-            margin: "12px 0 18px",
-            padding: 12,
-            borderRadius: 12,
-            border: "1px solid rgba(180,0,0,.25)",
-            background: "rgba(255,0,0,.05)",
-          }}
-        >
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Data error</div>
-          {membersError && <div>Members error: {membersError.message}</div>}
-          {itemsError && <div>Grocery items error: {itemsError.message}</div>}
-        </div>
-      )}
+    const { data: itemsData, error: iErr } = await supabaseAdmin
+      .from("grocery_items")
+      .select("id, label, qty, notes, claimed_by, claimed_at, created_at")
+      .order("claimed_by", { ascending: true, nullsFirst: true })
+      .order("created_at", { ascending: false });
 
-      {/* Add item */}
-      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 24 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Add an item</h2>
+    if (iErr) {
+      setError(iErr.message);
+      setLoading(false);
+      return;
+    }
 
-        <form action={addGroceryItem}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr auto", gap: 12, alignItems: "end" }}>
-            <label style={{ display: "grid", gap: 6, minWidth: 0 }}>
-              <span style={{ fontWeight: 600 }}>Item</span>
-              <input name="label" placeholder="Chips" style={{ width: "100%", minWidth: 0, padding: 10, border: "1px solid #ddd", borderRadius: 10, boxSizing: "border-box" }} />
-            </label>
+    setItems(itemsData ?? []);
+    setLoading(false);
+  }
 
-            <label style={{ display: "grid", gap: 6, minWidth: 0 }}>
-              <span style={{ fontWeight: 600 }}>Qty</span>
-              <input name="qty" placeholder="2 bags" style={{ width: "100%", minWidth: 0, padding: 10, border: "1px solid #ddd", borderRadius: 10, boxSizing: "border-box" }} />
-            </label>
+  useEffect(() => {
+    loadData();
+  }, []);
 
-            <label style={{ display: "grid", gap: 6, minWidth: 0 }}>
-              <span style={{ fontWeight: 600 }}>Notes (optional)</span>
-              <input name="notes" placeholder="Any brand is fine" style={{ width: "100%", minWidth: 0, padding: 10, border: "1px solid #ddd", borderRadius: 10, boxSizing: "border-box" }} />
-            </label>
+  const filteredItems = items.filter((item) => {
+    if (filter === "unclaimed") return !item.claimed_by;
+    if (filter === "claimed") return !!item.claimed_by;
+    return true;
+  });
 
-            <button type="submit" style={{ padding: "10px 16px", borderRadius: 10, border: "1px solid #ddd", cursor: "pointer", fontWeight: 600 }}>
-              Add
-            </button>
-          </div>
-        </form>
-      </section>
+  async function addItem() {
+    if (!newLabel.trim()) {
+      setError("Item name is required");
+      return;
+    }
+    setAdding(true);
+    setError(null);
 
-      {/* Unclaimed */}
-      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Unclaimed ({unclaimed.length})</h2>
-          <div style={{ opacity: 0.7, fontSize: 13 }}>
-            Pick a name in <b>Claimed by</b> → <b>Save</b>
-          </div>
-        </div>
+    const { error: addErr } = await supabaseAdmin.from("grocery_items").insert({
+      label: newLabel.trim(),
+      qty: newQty.trim() || null,
+      notes: newNotes.trim() || null,
+    });
 
-        <div style={{ display: "grid", gap: 8 }}>
-          {unclaimed.map((item) => (
-            <GroceryRow key={String(item.id)} item={item} memberList={memberList} />
-          ))}
+    setAdding(false);
+    if (addErr) {
+      setError(addErr.message);
+      return;
+    }
 
-          {unclaimed.length === 0 && <div style={{ opacity: 0.7, padding: 8 }}>Nothing unclaimed!</div>}
-        </div>
-      </section>
+    setNewLabel("");
+    setNewQty("");
+    setNewNotes("");
+    await loadData();
+  }
 
-      {/* Claimed */}
-      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Claimed ({claimed.length})</h2>
+  async function claimItem(id: string, memberId: string) {
+    const { error: claimErr } = await supabaseAdmin
+      .from("grocery_items")
+      .update({ claimed_by: memberId, claimed_at: new Date().toISOString() })
+      .eq("id", id);
 
-        <div style={{ display: "grid", gap: 8 }}>
-          {claimed.map((item) => (
-            <GroceryRow key={String(item.id)} item={item} memberList={memberList} />
-          ))}
+    if (claimErr) {
+      setError(claimErr.message);
+      return;
+    }
+    await loadData();
+  }
 
-          {claimed.length === 0 && <div style={{ opacity: 0.7, padding: 8 }}>No claimed items yet.</div>}
-        </div>
-      </section>
-    </main>
-  </>
-  );
-}
+  async function unclaimItem(id: string) {
+    const { error: unclaimErr } = await supabaseAdmin
+      .from("grocery_items")
+      .update({ claimed_by: null, claimed_at: null })
+      .eq("id", id);
 
-function GroceryRow({
-  item,
-  memberList,
-}: {
-  item: GroceryItem;
-  memberList: { id: string; name: string }[];
-}) {
-  const inputStyle = {
-    width: "100%",
-    minWidth: 0,
-    padding: 10,
-    border: "1px solid #ddd",
-    borderRadius: 10,
-    boxSizing: "border-box" as const,
-  };
+    if (unclaimErr) {
+      setError(unclaimErr.message);
+      return;
+    }
+    await loadData();
+  }
 
-  const labelStyle = {
-    display: "grid",
-    gap: 6,
-    minWidth: 0,
-  };
+  function startEdit(item: GroceryItem) {
+    setEditingId(item.id);
+    setEditLabel(item.label);
+    setEditQty(item.qty ?? "");
+    setEditNotes(item.notes ?? "");
+    setEditClaimedBy(item.claimed_by ?? "");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditLabel("");
+    setEditQty("");
+    setEditNotes("");
+    setEditClaimedBy("");
+  }
+
+  async function saveEdit(id: string) {
+    if (!editLabel.trim()) {
+      setError("Item name is required");
+      return;
+    }
+
+    const { error: saveErr } = await supabaseAdmin
+      .from("grocery_items")
+      .update({
+        label: editLabel.trim(),
+        qty: editQty.trim() || null,
+        notes: editNotes.trim() || null,
+        claimed_by: editClaimedBy || null,
+        claimed_at: editClaimedBy ? new Date().toISOString() : null,
+      })
+      .eq("id", id);
+
+    if (saveErr) {
+      setError(saveErr.message);
+      return;
+    }
+
+    cancelEdit();
+    await loadData();
+  }
+
+  async function deleteItem(id: string) {
+    if (!confirm("Delete this item?")) return;
+
+    const { error: delErr } = await supabaseAdmin.from("grocery_items").delete().eq("id", id);
+
+    if (delErr) {
+      setError(delErr.message);
+      return;
+    }
+    await loadData();
+  }
+
+  const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? "Someone";
 
   return (
-    <div style={{ border: "1px solid #f0f0f0", borderRadius: 10, padding: 12 }}>
-<div className="grocery-row-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 2fr 1.5fr auto auto", gap: 12, alignItems: "end" }}>
-  <label style={labelStyle}>
-          <span style={{ fontWeight: 600 }}>Item</span>
-          <input
-            value={item.label}
-            readOnly
-            style={{ ...inputStyle, background: "#f9f9f9" }}
-          />
-        </label>
+    <>
+      <style>{`
+        .grocery-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 14px;
+        }
+        .grocery-table th {
+          text-align: left;
+          padding: 8px 10px;
+          border-bottom: 2px solid #ddd;
+          font-weight: 700;
+          background: rgba(251,246,234,0.6);
+        }
+        .grocery-table td {
+          padding: 6px 10px;
+          border-bottom: 1px solid #f0f0f0;
+          background: #fff;
+        }
+        .grocery-table tr:hover td {
+          background: #fafafa;
+        }
+        .truncate {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 200px;
+        }
+        .filter-pills {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .pill {
+          padding: 6px 14px;
+          border-radius: 20px;
+          border: 1px solid #ddd;
+          background: #fff;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .pill.active {
+          background: #404D40;
+          color: #fff;
+          border-color: #404D40;
+        }
+        .btn-sm {
+          padding: 4px 10px;
+          font-size: 12px;
+          border-radius: 6px;
+          border: 1px solid #ddd;
+          background: #fff;
+          cursor: pointer;
+          font-weight: 600;
+        }
+        .btn-sm:hover {
+          background: #f5f5f5;
+        }
+        .btn-danger {
+          color: crimson;
+          border-color: crimson;
+        }
+        .add-row {
+          display: grid;
+          grid-template-columns: 2fr 1fr 2fr auto;
+          gap: 10px;
+          margin-bottom: 20px;
+          align-items: center;
+        }
+        .add-row input {
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 13px;
+        }
+        @media (max-width: 880px) {
+          .grocery-table {
+            font-size: 12px;
+          }
+          .grocery-table th,
+          .grocery-table td {
+            padding: 6px 8px;
+          }
+          .add-row {
+            grid-template-columns: 1fr;
+          }
+          .truncate {
+            max-width: 120px;
+          }
+        }
+      `}</style>
+      <main style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Groceries</h1>
 
-        <form action={saveGroceryItem} style={{ display: "contents" }}>
-          <input type="hidden" name="id" value={String(item.id)} />
+        {error && (
+          <div style={{ padding: 12, background: "#ffe0e0", border: "1px solid crimson", borderRadius: 8, marginBottom: 16, color: "crimson" }}>
+            {error}
+          </div>
+        )}
 
-          <label style={labelStyle}>
-            <span style={{ fontWeight: 600 }}>Qty</span>
-            <input name="qty" defaultValue={item.qty ?? ""} style={inputStyle} />
-          </label>
-
-          <label style={labelStyle}>
-            <span style={{ fontWeight: 600 }}>Notes</span>
-            <input name="notes" defaultValue={item.notes ?? ""} style={inputStyle} />
-          </label>
-
-          <label style={labelStyle}>
-            <span style={{ fontWeight: 600 }}>Claimed by</span>
-            <select name="claimed_by" defaultValue={item.claimed_by ?? ""} style={inputStyle}>
-              <option value="">Unclaimed</option>
-              {memberList.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button type="submit" style={{ padding: "10px 14px", borderRadius: 10, border: "1px solid #ddd", cursor: "pointer", fontWeight: 600 }}>
-            Save
+        <div className="add-row">
+          <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Item" />
+          <input value={newQty} onChange={(e) => setNewQty(e.target.value)} placeholder="Qty" />
+          <input value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Notes (optional)" />
+          <button className="btn-sm" onClick={addItem} disabled={adding}>
+            {adding ? "Adding..." : "Add"}
           </button>
-        </form>
+        </div>
 
-        <form action={deleteGroceryItem}>
-          <input type="hidden" name="id" value={String(item.id)} />
-          <button
-            type="submit"
-            style={{
-              padding: "10px 14px",
-              borderRadius: 10,
-              border: "1px solid #ddd",
-              cursor: "pointer",
-              fontWeight: 600,
-              color: "crimson",
-            }}
-          >
-            Delete
+        <div className="filter-pills">
+          <button className={`pill ${filter === "unclaimed" ? "active" : ""}`} onClick={() => setFilter("unclaimed")}>
+            Unclaimed ({items.filter((i) => !i.claimed_by).length})
           </button>
-        </form>
-      </div>
-    </div>
+          <button className={`pill ${filter === "claimed" ? "active" : ""}`} onClick={() => setFilter("claimed")}>
+            Claimed ({items.filter((i) => !!i.claimed_by).length})
+          </button>
+          <button className={`pill ${filter === "all" ? "active" : ""}`} onClick={() => setFilter("all")}>
+            All ({items.length})
+          </button>
+        </div>
+
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <table className="grocery-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Notes</th>
+                <th>Claimed by</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", padding: 20, opacity: 0.6 }}>
+                    No items
+                  </td>
+                </tr>
+              ) : (
+                filteredItems.map((item) => {
+                  const isEditing = editingId === item.id;
+
+                  return (
+                    <tr key={item.id}>
+                      <td>
+                        {isEditing ? (
+                          <input
+                            value={editLabel}
+                            onChange={(e) => setEditLabel(e.target.value)}
+                            style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                          />
+                        ) : (
+                          <span style={{ fontWeight: 600 }}>{item.label}</span>
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <input
+                            value={editQty}
+                            onChange={(e) => setEditQty(e.target.value)}
+                            style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                          />
+                        ) : (
+                          item.qty || "—"
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <input
+                            value={editNotes}
+                            onChange={(e) => setEditNotes(e.target.value)}
+                            style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                          />
+                        ) : (
+                          <span className="truncate" title={item.notes ?? ""}>
+                            {item.notes || "—"}
+                          </span>
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <select
+                            value={editClaimedBy}
+                            onChange={(e) => setEditClaimedBy(e.target.value)}
+                            style={{ width: "100%", padding: 6, border: "1px solid #ddd", borderRadius: 4 }}
+                          >
+                            <option value="">Unclaimed</option>
+                            {members.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : item.claimed_by ? (
+                          <span style={{ fontWeight: 600 }}>{getMemberName(item.claimed_by)}</span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          {isEditing ? (
+                            <>
+                              <button className="btn-sm" onClick={() => saveEdit(item.id)}>
+                                Save
+                              </button>
+                              <button className="btn-sm" onClick={cancelEdit}>
+                                Cancel
+                              </button>
+                              <button className="btn-sm btn-danger" onClick={() => deleteItem(item.id)}>
+                                Delete
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button className="btn-sm" onClick={() => startEdit(item)}>
+                                Edit
+                              </button>
+                              {!item.claimed_by ? (
+                                <select
+                                  onChange={(e) => e.target.value && claimItem(item.id, e.target.value)}
+                                  style={{ padding: "4px 8px", fontSize: 12, borderRadius: 6, border: "1px solid #ddd" }}
+                                  defaultValue=""
+                                >
+                                  <option value="">Claim</option>
+                                  {members.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                      {m.name}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <button className="btn-sm" onClick={() => unclaimItem(item.id)}>
+                                  Unclaim
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        )}
+      </main>
+    </>
   );
 }
