@@ -90,7 +90,7 @@ export default function BalancesPage() {
         <div style={{ color: "crimson" }}>{error}</div>
       ) : (
         <>
-          <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
+          <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Summary</h2>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 140px 140px", gap: 8, fontWeight: 700 }}>
@@ -111,6 +111,7 @@ export default function BalancesPage() {
                     padding: "8px 10px",
                     border: "1px solid #f0f0f0",
                     borderRadius: 10,
+                    background: "#FFFFFF",
                   }}
                 >
                   <div style={{ fontWeight: 700 }}>{r.name}</div>
@@ -126,7 +127,7 @@ export default function BalancesPage() {
             </div>
           </section>
 
-          <section style={{ marginTop: 16, border: "1px solid #e5e5e5", borderRadius: 12, padding: 16 }}>
+          <section style={{ marginTop: 16, border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, background: "#FBF6EA" }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Suggested settle up</h2>
 
             {payments.length === 0 ? (
@@ -134,7 +135,7 @@ export default function BalancesPage() {
             ) : (
               <div style={{ display: "grid", gap: 8 }}>
                 {payments.map((p, idx) => (
-                  <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10 }}>
+                  <div key={idx} style={{ padding: "8px 10px", border: "1px solid #f0f0f0", borderRadius: 10, bacground: "#FFFFFF" }}>
                     <b>{nameById.get(p.from) ?? "Someone"}</b> pays{" "}
                     <b>{nameById.get(p.to) ?? "Someone"}</b>{" "}
                     <b>{centsToDollars(p.amount_cents)}</b>
