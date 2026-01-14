@@ -24,7 +24,7 @@ export function BackgroundDecor() {
     // Row 6 - bottom
     { src: "/images/martini.png", top: "90%", left: "25%", size: 130, rotate: 8, opacity: 0.18 },
     { src: "/images/ring.png", top: "88%", left: "68%", size: 120, rotate: -5, opacity: 0.25 },
-    { src: "/images/wineglasses.png", top: "85%", left: "88%", size: 130, rotate: 5, opacity: 0.55 },
+    { src: "/images/wineglasses.png", top: "80%", left: "88%", size: 130, rotate: 5, opacity: 0.55 },
 
   ];
 
