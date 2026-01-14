@@ -217,7 +217,7 @@ export default function ExpensesPage() {
     <main style={{ padding: 24, maxWidth: 1000, margin: "0 auto" }}>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Expenses</h1>
 
-      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 24 }}>
+      <section style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 16, marginBottom: 24, background: "#FBF6EA"  }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Add an expense</h2>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -321,7 +321,7 @@ export default function ExpensesPage() {
             {expenses.map((e) => {
               const s = (splitsByExpense.get(e.id) ?? []).slice().sort((a, b) => memberName(a.member_id).localeCompare(memberName(b.member_id)));
               return (
-                <div key={e.id} style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 12 }}>
+                <div key={e.id} style={{ border: "1px solid #e5e5e5", borderRadius: 12, padding: 12, background: "#FFFFFF" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                     <div>
                       <div style={{ fontWeight: 800 }}>{e.title}</div>
