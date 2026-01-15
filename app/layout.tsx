@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: "Court's Bach - Jan 23-25 - Lake Delton",
     images: [
       {
-        url: "/images/airbnb-20image-20painted.jpeg",
+        url: "/images/og-cabin.jpeg",
         width: 1200,
         height: 630,
         alt: "Camp Courtney cabin in winter",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Court's Bach - Jan 23-25 - Lake Delton",
     description: "Court's Bach - Jan 23-25 - Lake Delton",
-    images: ["/images/airbnb-20image-20painted.jpeg"],
+    images: ["/images/og-cabin.jpeg"],
   },
 };
 
