@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Member = { id: string; name: string; sort_order: number };
 type GroceryItem = {
@@ -36,6 +36,7 @@ export function GroceriesClient({
   const [error, setError] = useState<string | null>(null);
 
   // Add form state
+  const [showModal, setShowModal] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newQty, setNewQty] = useState("");
   const [newNotes, setNewNotes] = useState("");
@@ -101,6 +102,7 @@ console.log("Items by category:", itemsByCategory);
     setNewQty("");
     setNewNotes("");
     setNewCategory("snacks");
+    setShowModal(false);
     await refreshData();
   }
 
@@ -200,6 +202,16 @@ console.log("Items by category:", itemsByCategory);
 
   const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? "Someone";
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [showModal]);
+
   return (
     <>
       <style>{`
@@ -264,19 +276,107 @@ console.log("Items by category:", itemsByCategory);
           color: crimson;
           border-color: crimson;
         }
-        .add-row {
-          display: grid;
-          grid-template-columns: 2fr 1fr 2fr 1.5fr auto;
-          gap: 10px;
+        .add-btn {
+          display: block;
+          width: 100%;
+          padding: 14px;
           margin-bottom: 20px;
-          align-items: center;
+          font-size: 16px;
+          font-weight: 700;
+          color: #FBF6EA;
+          background: #404D40;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
         }
-        .add-row input,
-        .add-row select {
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
+        .add-btn:hover {
+          background: #121C19;
+        }
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+          z-index: 100;
+        }
+        .modal-box {
+          background: #FBF6EA;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 420px;
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 20px;
+          border-bottom: 1px solid rgba(64,77,64,0.15);
+        }
+        .modal-header h2 {
+          font-size: 20px;
+          font-weight: 800;
+          margin: 0;
+        }
+        .modal-close {
+          font-size: 28px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          opacity: 0.5;
+        }
+        .modal-close:hover {
+          opacity: 1;
+        }
+        .modal-body {
+          padding: 20px;
+        }
+        .modal-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          padding: 16px 20px;
+          border-top: 1px solid rgba(64,77,64,0.15);
+        }
+        .form-field {
+          display: grid;
+          gap: 6px;
+          margin-bottom: 14px;
+        }
+        .form-field label {
           font-size: 13px;
+          font-weight: 700;
+        }
+        .form-field input,
+        .form-field select {
+          padding: 10px 12px;
+          border: 1px solid rgba(64,77,64,0.2);
+          border-radius: 8px;
+          font-size: 15px;
+        }
+        .btn-cancel {
+          padding: 10px 20px;
+          font-weight: 700;
+          border: 1px solid rgba(64,77,64,0.2);
+          border-radius: 8px;
+          background: transparent;
+          cursor: pointer;
+        }
+        .btn-save {
+          padding: 10px 20px;
+          font-weight: 700;
+          color: #FBF6EA;
+          background: #404D40;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        .btn-save:disabled {
+          opacity: 0.5;
         }
         .category-section {
           margin-bottom: 24px;
@@ -311,8 +411,7 @@ console.log("Items by category:", itemsByCategory);
           }
         }
       `}</style>
-      <main style={{ padding: 24, maxWidth: 1200, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Groceries</h1>
+      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 16 }}>Groceries</h1>
 
         {error && (
           <div
@@ -329,21 +428,7 @@ console.log("Items by category:", itemsByCategory);
           </div>
         )}
 
-        <div className="add-row">
-          <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Item" />
-          <input value={newQty} onChange={(e) => setNewQty(e.target.value)} placeholder="Qty" />
-          <input value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Notes (optional)" />
-          <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          <button className="btn-sm" onClick={addItem} disabled={adding}>
-            {adding ? "Adding..." : "Add"}
-          </button>
-        </div>
+        <button className="add-btn" onClick={() => setShowModal(true)}>+ Add Item</button>
 
         <div className="filter-pills">
           <button className={`pill ${filter === "unclaimed" ? "active" : ""}`} onClick={() => setFilter("unclaimed")}>
@@ -501,7 +586,44 @@ console.log("Items by category:", itemsByCategory);
             </div>
           ))
         )}
-      </main>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add Item</h2>
+              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-field">
+                <label>Item</label>
+                <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="What do you need?" />
+              </div>
+              <div className="form-field">
+                <label>Quantity</label>
+                <input value={newQty} onChange={(e) => setNewQty(e.target.value)} placeholder="e.g. 2 bags, 1 lb" />
+              </div>
+              <div className="form-field">
+                <label>Category</label>
+                <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Notes (optional)</label>
+                <input value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Brand preference, etc." />
+              </div>
+              {error && <div style={{ color: "#984636", fontWeight: 600, marginTop: 10 }}>{error}</div>}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={() => { setShowModal(false); setError(null); }}>Cancel</button>
+              <button className="btn-save" onClick={addItem} disabled={adding}>{adding ? "Adding..." : "Add Item"}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

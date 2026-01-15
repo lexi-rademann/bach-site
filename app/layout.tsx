@@ -21,8 +21,27 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Camp Courtney",
-  description: "Camp Courtney weekend HQ",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://camp-courtney.vercel.app"),
+  title: "Court's Bach - Jan 23-25 - Lake Delton",
+  description: "Court's Bach - Jan 23-25 - Lake Delton",
+  openGraph: {
+    title: "Court's Bach - Jan 23-25 - Lake Delton",
+    description: "Court's Bach - Jan 23-25 - Lake Delton",
+    images: [
+      {
+        url: "/images/airbnb-20image-20painted.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Camp Courtney cabin in winter",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Court's Bach - Jan 23-25 - Lake Delton",
+    description: "Court's Bach - Jan 23-25 - Lake Delton",
+    images: ["/images/airbnb-20image-20painted.jpeg"],
+  },
 };
 
 export default function RootLayout({

@@ -4,6 +4,11 @@ import type { NextRequest } from "next/server";
 const COOKIE_NAME = "bach_access";
 
 export function proxy(req: NextRequest) {
+  // Bypass auth entirely in local dev when DEV_BYPASS_AUTH is set
+  if (process.env.DEV_BYPASS_AUTH === "true") {
+    return NextResponse.next();
+  }
+
   const { pathname } = req.nextUrl;
 
   // Allow these without being "unlocked"

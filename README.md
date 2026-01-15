@@ -34,3 +34,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Backlog
+
+- **Background line drawings**: The `BackgroundDecor` component (decorative line drawings of trees, martinis, wine glasses, etc.) is currently disabled. On wider screens (>640px), these fixed-position images were intended to add visual interest to the background, but card components (expense cards, balance cards, etc.) appear transparent despite having solid background colors set. If we can resolve the card transparency/z-index issue in the future, re-enable the background decorations in `components/BackgroundDecor.tsx`.
