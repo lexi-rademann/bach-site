@@ -21,7 +21,7 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://camp-courtney.vercel.app"),
+  metadataBase: new URL("https://www.courtneysbach.com"),
   title: "Court's Bach - Jan 23-25 - Lake Delton",
   description: "Court's Bach - Jan 23-25 - Lake Delton",
   openGraph: {
